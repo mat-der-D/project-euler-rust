@@ -4,5 +4,16 @@
 // <p>There exists exactly one Pythagorean triplet for which $a + b + c = 1000$.<br>Find the product $abc$.</p>
 
 fn main() {
-    println!("Hello, world!");
+    for a in 1..1000 {
+        for b in a..(1000 - a) {
+            let c = 1000 - a - b;
+            if b > c {
+                continue;
+            }
+            if a * a + b * b == c * c {
+                println!("(a, b, c) = ({a}, {b}, {c}), product = {}", a * b * c);
+                return;
+            }
+        }
+    }
 }
