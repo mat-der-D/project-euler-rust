@@ -22,6 +22,84 @@
 // 71636269561882670428252483600823257530420752963450<br></p>
 // <p>Find the thirteen adjacent digits in the $1000$-digit number that have the greatest product. What is the value of this product?</p>
 
-fn main() {
-    println!("Hello, world!");
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
+
+fn parse_input(path: &Path) -> Result<String, std::io::Error> {
+    let fs = File::open(path)?;
+    let reader = BufReader::new(fs);
+    let mut out = String::new();
+    for line in reader.lines() {
+        let line = line?;
+        out.push_str(&line);
+    }
+    Ok(out)
+}
+
+fn split_by_zero(num_series: &str) -> Vec<String> {
+    let mut fragments = Vec::<String>::new();
+    let mut s = String::new();
+    for c in num_series.chars() {
+        if c == '0' {
+            if !s.is_empty() {
+                fragments.push(s);
+                s = String::new();
+            }
+            continue;
+        }
+        s.push(c);
+    }
+    if !s.is_empty() {
+        fragments.push(s);
+    }
+    fragments
+}
+
+fn find_largest_prod(num_series: &str, digit_len: usize) -> Result<u64, anyhow::Error> {
+    fn _parse_char(c: char) -> Result<u64, anyhow::Error> {
+        Ok((c.to_string()).parse::<u64>()?)
+    }
+
+    // Initialization
+    let head_iter = num_series.chars();
+    let mut tail_iter = num_series.chars();
+    let mut prod = 1;
+    for _ in 0..digit_len {
+        let c = tail_iter
+            .next()
+            .ok_or(anyhow::anyhow!("num_series is too short"))?;
+        let num = _parse_char(c)?;
+        prod *= num;
+    }
+    let mut largest_prod = prod;
+
+    // Search
+    for (head, tail) in head_iter.zip(tail_iter) {
+        let head_num = _parse_char(head)?;
+        let tail_num = _parse_char(tail)?;
+        prod *= tail_num;
+        prod /= head_num;
+        largest_prod = largest_prod.max(prod);
+    }
+    Ok(largest_prod)
+}
+
+fn main() -> Result<(), anyhow::Error> {
+    const DIGIT_LEN: usize = 13;
+    // Suppose that "cargo run" is executed at the project root
+    let input_path = Path::new("src/input.txt");
+    let input_num_str = parse_input(&input_path)?;
+    let num_fragments = split_by_zero(&input_num_str);
+
+    let mut max_product = 0;
+    for fragment in num_fragments {
+        if let Ok(prod) = find_largest_prod(&fragment, DIGIT_LEN) {
+            max_product = max_product.max(prod);
+        }
+    }
+    println!("{max_product}");
+    Ok(())
 }
