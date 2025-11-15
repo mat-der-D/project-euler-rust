@@ -8,6 +8,37 @@
 // <p>Which starting number, under one million, produces the longest chain?</p>
 // <p class="note"><b>NOTE:</b> Once the chain starts the terms are allowed to go above one million.</p>
 
+use std::collections::HashMap;
+
+fn count_lengths(init: u64) -> Vec<(u64, usize)> {
+    let mut series = vec![init];
+    let mut num = init;
+    while num > 1 {
+        num = if num % 2 == 0 { num / 2 } else { 3 * num + 1 };
+        series.push(num);
+    }
+
+    series
+        .into_iter()
+        .rev()
+        .enumerate()
+        .map(|(len, num)| (num, len))
+        .collect()
+}
+
+fn update_len_map(init: u64, len_map: &mut HashMap<u64, usize>) {
+    if len_map.contains_key(&init) {
+        return;
+    }
+    let lens = count_lengths(init);
+    len_map.extend(lens);
+}
+
 fn main() {
-    println!("Hello, world!");
+    let mut len_map = HashMap::new();
+    for n in (1..=1_000_000).rev() {
+        update_len_map(n, &mut len_map);
+    }
+    let longest = len_map.iter().max_by_key(|(_, v)| **v);
+    println!("{:?}", longest);
 }
