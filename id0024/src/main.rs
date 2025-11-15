@@ -2,21 +2,21 @@
 // <p class="center">012   021   102   120   201   210</p>
 // <p>What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9?</p>
 
-const N: u32 = 1_000_000 - 1;
-const FACTORIALS: [u32; 10] = {
+const N: usize = 1_000_000 - 1;
+const FACTORIALS: [usize; 10] = {
     let mut factorials = [0; 10];
     let mut factorial = 1;
     factorials[0] = factorial;
     let mut i = 1;
     while i < 10 {
         factorial *= i;
-        factorials[i as usize] = factorial;
+        factorials[i] = factorial;
         i += 1;
     }
     factorials
 };
 
-fn find_coords(mut num: u32) -> Vec<u32> {
+fn find_coords(mut num: usize) -> Vec<usize> {
     // Returns [a_9, a_8, ..., a_1]
     let mut coords = Vec::new();
     for &factorial in FACTORIALS.iter().rev().take(9) {
@@ -38,9 +38,9 @@ fn main() {
 
     let coords = find_coords(N);
     let mut the_number = Vec::new();
-    let mut digits: Vec<u32> = (0..=9).collect();
+    let mut digits: Vec<usize> = (0..=9).collect();
     for coord in coords {
-        let digit = digits.remove(coord as usize);
+        let digit = digits.remove(coord);
         the_number.push(digit);
     }
     the_number.push(digits.remove(0));
