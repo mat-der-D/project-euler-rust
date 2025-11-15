@@ -101,6 +101,34 @@
 // 20849603980134001723930671666823555245252804609722<br>
 // 53503534226472524250874054075591789781264330331690<br></div>
 
-fn main() {
-    println!("Hello, world!");
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
+
+fn take_top_digits(num_str: String, num_digits: usize) -> Result<u128, anyhow::Error> {
+    let top_num_str: String = num_str.chars().take(num_digits).collect();
+    let top_num = top_num_str.parse()?;
+    Ok(top_num)
+}
+
+fn parse_top_digits_of_numbers(path: &Path, num_digits: usize) -> Result<Vec<u128>, anyhow::Error> {
+    let mut nums = Vec::new();
+    let fs = File::open(path)?;
+    let reader = BufReader::new(fs);
+    for line in reader.lines() {
+        nums.push(take_top_digits(line?, num_digits)?);
+    }
+    Ok(nums)
+}
+
+fn main() -> Result<(), anyhow::Error> {
+    // Suppose "cargo run" is executed at the project root
+    let path = Path::new("src/input.txt");
+    let nums = parse_top_digits_of_numbers(path, 15)?; // hopefully 15 would be sufficient...
+    let sum: u128 = nums.into_iter().sum();
+    let top10_of_sum = take_top_digits(sum.to_string(), 10)?;
+    println!("{top10_of_sum}");
+    Ok(())
 }
