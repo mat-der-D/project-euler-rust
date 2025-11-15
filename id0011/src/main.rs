@@ -23,6 +23,103 @@
 // <p>The product of these numbers is $26 \times 63 \times 78 \times 14 = 1788696$.</p>
 // <p>What is the greatest product of four adjacent numbers in the same direction (up, down, left, right, or diagonally) in the $20 \times 20$ grid?</p>
 
-fn main() {
-    println!("Hello, world!");
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
+
+const ARRAY_SIZE: usize = 20;
+type MyArray = [[u32; ARRAY_SIZE]; ARRAY_SIZE];
+
+fn can_calc_right(idx1: usize, idx2: usize) -> bool {
+    idx1 < ARRAY_SIZE - 4 && idx2 < ARRAY_SIZE
+}
+
+fn calc_prod_right(idx1: usize, idx2: usize, nums: &MyArray) -> u32 {
+    let mut prod = 1;
+    for i in 0..4 {
+        prod *= nums[idx1 + i][idx2];
+    }
+    prod
+}
+
+fn can_calc_right_down(idx1: usize, idx2: usize) -> bool {
+    idx1 < ARRAY_SIZE - 4 && idx2 < ARRAY_SIZE - 4
+}
+
+fn calc_prod_right_down(idx1: usize, idx2: usize, nums: &MyArray) -> u32 {
+    let mut prod = 1;
+    for i in 0..4 {
+        prod *= nums[idx1 + i][idx2 + i];
+    }
+    prod
+}
+
+fn can_calc_down(idx1: usize, idx2: usize) -> bool {
+    idx1 < ARRAY_SIZE && idx2 < ARRAY_SIZE - 4
+}
+
+fn calc_prod_down(idx1: usize, idx2: usize, nums: &MyArray) -> u32 {
+    let mut prod = 1;
+    for i in 0..4 {
+        prod *= nums[idx1][idx2 + i];
+    }
+    prod
+}
+
+fn can_calc_left_down(idx1: usize, idx2: usize) -> bool {
+    idx1 >= 3 && idx1 < ARRAY_SIZE && idx2 < ARRAY_SIZE - 4
+}
+
+fn calc_prod_left_down(idx1: usize, idx2: usize, nums: &MyArray) -> u32 {
+    let mut prod = 1;
+    for i in 0..4 {
+        prod *= nums[idx1 - i][idx2 + i];
+    }
+    prod
+}
+
+fn find_max_prod(nums: &MyArray) -> u32 {
+    let mut max_prod = 1;
+    for idx1 in 0..ARRAY_SIZE {
+        for idx2 in 0..ARRAY_SIZE {
+            if can_calc_right(idx1, idx2) {
+                max_prod = max_prod.max(calc_prod_right(idx1, idx2, nums));
+            }
+            if can_calc_right_down(idx1, idx2) {
+                max_prod = max_prod.max(calc_prod_right_down(idx1, idx2, nums));
+            }
+            if can_calc_down(idx1, idx2) {
+                max_prod = max_prod.max(calc_prod_down(idx1, idx2, nums));
+            }
+            if can_calc_left_down(idx1, idx2) {
+                max_prod = max_prod.max(calc_prod_left_down(idx1, idx2, nums));
+            }
+        }
+    }
+    max_prod
+}
+
+fn parse_array(path: &Path) -> Result<MyArray, anyhow::Error> {
+    let mut nums = [[0; ARRAY_SIZE]; ARRAY_SIZE];
+
+    let fs = File::open(path)?;
+    let reader = BufReader::new(fs);
+    for (irow, line) in reader.lines().enumerate() {
+        let line = line?;
+        for (icol, num_str) in line.split_whitespace().enumerate() {
+            nums[irow][icol] = num_str.parse()?;
+        }
+    }
+    Ok(nums)
+}
+
+fn main() -> Result<(), anyhow::Error> {
+    // Suppose that "cargo run" is executed at the project root
+    let path = Path::new("src/input.txt");
+    let nums = parse_array(path)?;
+    let max_prod = find_max_prod(&nums);
+    println!("{max_prod}");
+    Ok(())
 }
