@@ -13,6 +13,31 @@
 // <p>Where $0.1(6)$ means $0.166666\cdots$, and has a $1$-digit recurring cycle. It can be seen that $1/7$ has a $6$-digit recurring cycle.</p>
 // <p>Find the value of $d \lt 1000$ for which $1/d$ contains the longest recurring cycle in its decimal fraction part.</p>
 
+fn calc_period(denominator: u32) -> usize {
+    let mut seen = Vec::new();
+    let mut res = 1;
+    loop {
+        res = (10 * res) % denominator;
+        if res == 0 {
+            return 0;
+        }
+        if let Some(pos) = seen.iter().position(|&n| n == res) {
+            return seen.len() - pos;
+        } else {
+            seen.push(res);
+        }
+    }
+}
+
 fn main() {
-    println!("Hello, world!");
+    let mut longest_n = 0;
+    let mut longest_cycle = 0;
+    for n in 1..1000 {
+        let cycle_len = calc_period(n);
+        if longest_cycle < cycle_len {
+            longest_n = n;
+            longest_cycle = cycle_len;
+        }
+    }
+    println!("{longest_n}: {longest_cycle}");
 }
