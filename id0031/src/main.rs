@@ -4,27 +4,27 @@
 // <blockquote>1×£1 + 1×50p + 2×20p + 1×5p + 1×2p + 3×1p</blockquote>
 // <p>How many different ways can £2 be made using any number of coins?</p>
 
-fn main() {
-    let mut count = 0;
-    let res = 200u32;
-    for n1 in 0..=(res / 200) {
-        let res = res - 200 * n1;
-        for n2 in 0..=(res / 100) {
-            let res = res - 100 * n2;
-            for n3 in 0..=(res / 50) {
-                let res = res - 50 * n3;
-                for n4 in 0..=(res / 20) {
-                    let res = res - 20 * n4;
-                    for n5 in 0..=(res / 10) {
-                        let res = res - 10 * n5;
-                        for n6 in 0..=(res / 5) {
-                            let res = res - 5 * n6;
-                            count += res / 2 + 1;
-                        }
-                    }
-                }
-            }
-        }
+fn count_ways_to_pay(price: u32, coin_values: &[u32]) -> u32 {
+    if coin_values.len() == 0 {
+        return if price == 0 { 1 } else { 0 };
     }
+    if coin_values.len() == 1 {
+        return if price % coin_values[0] == 0 { 1 } else { 0 };
+    }
+
+    let first_coin_value = coin_values[0];
+    let rest_coins = &coin_values[1..];
+    let mut count = 0;
+    for num in 0..=(price / first_coin_value) {
+        let rest_price = price - first_coin_value * num;
+        count += count_ways_to_pay(rest_price, rest_coins);
+    }
+    count
+}
+
+fn main() {
+    let coin_values = [200, 100, 50, 20, 10, 5, 2, 1];
+    let price = 200;
+    let count = count_ways_to_pay(price, &coin_values);
     println!("{count}");
 }
