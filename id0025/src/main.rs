@@ -19,5 +19,23 @@
 // <p>What is the index of the first term in the Fibonacci sequence to contain $1000$ digits?</p>
 
 fn main() {
-    println!("Hello, world!");
+    // General term of F_n can be written by
+    //   F_n = ( a^n - b^n )/\sqrt{5}
+    // where
+    //   a = (1 + \sqrt{5})/2, b = (1 - \sqrt{5})/2.
+    // Now, because |b| < 1, b^n is negligible compared to a^n for large n.
+    // We want to consider the case that F_n is nearly 10^999, so we can suppose n is large.
+    // Thus
+    //   F_n ~ a^n/\sqrt{5}
+    // Take the common logarithm:
+    //   log F_n ~ n log(a) - log(\sqrt{5})
+    // Thus
+    //   n ~ ( log F_n + log(\sqrt{5})) / log(a)
+    // Therefore, a good approximation for n where F_n exceeds 10^999 for the first time
+    // can be given by
+    //   Ceil( ( 999 + log(\sqrt{5})) / log(a) )
+
+    let a = (1.0 + 5f32.sqrt()) * 0.5;
+    let n = ((999.0 + 5f32.sqrt().log10()) / a.log10()).ceil();
+    println!("{n}");
 }
