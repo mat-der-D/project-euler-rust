@@ -21,6 +21,48 @@
 // 04 62 98 27 23 09 70 98 73 93 38 53 60 04 23</p>
 // <p class="note"><b>NOTE:</b> As there are only $16384$ routes, it is possible to solve this problem by trying every route. However, <a href="problem=67">Problem 67</a>, is the same challenge with a triangle containing one-hundred rows; it cannot be solved by brute force, and requires a clever method! ;o)</p>
 
-fn main() {
-    println!("Hello, world!");
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
+
+fn parse_pyramid(path: &Path) -> Result<Vec<Vec<u32>>, anyhow::Error> {
+    let mut pyramid = Vec::new();
+    let fs = File::open(path)?;
+    let reader = BufReader::new(fs);
+    for line in reader.lines() {
+        let mut pyramid_line = Vec::new();
+        for num_str in line?.split_whitespace() {
+            pyramid_line.push(num_str.parse()?);
+        }
+        pyramid.push(pyramid_line);
+    }
+    Ok(pyramid)
+}
+
+fn calc_max_total(pyramid: &Vec<Vec<u32>>) -> u32 {
+    if pyramid.is_empty() {
+        panic!();
+    }
+    let mut totals = pyramid[pyramid.len() - 1].clone();
+    for irow in (0..(pyramid.len() - 1)).rev() {
+        let mut next_totals = Vec::new();
+        for (icol, &num) in (&pyramid[irow]).iter().enumerate() {
+            let sum = num + totals[icol].max(totals[icol + 1]);
+            next_totals.push(sum);
+        }
+        totals = next_totals;
+    }
+    assert!(totals.len() == 1);
+    totals[0]
+}
+
+fn main() -> Result<(), anyhow::Error> {
+    // Suppose that "cargo run" is executed at the project root
+    let input_path = Path::new("src/input.txt");
+    let pyramid = parse_pyramid(&input_path)?;
+    let max_total = calc_max_total(&pyramid);
+    println!("{max_total}");
+    Ok(())
 }
