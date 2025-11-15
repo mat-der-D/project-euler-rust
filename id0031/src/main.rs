@@ -5,5 +5,26 @@
 // <p>How many different ways can £2 be made using any number of coins?</p>
 
 fn main() {
-    println!("Hello, world!");
+    let mut count = 0;
+    let res = 200u32;
+    for n1 in 0..=(res / 200) {
+        let res = res - 200 * n1;
+        for n2 in 0..=(res / 100) {
+            let res = res - 100 * n2;
+            for n3 in 0..=(res / 50) {
+                let res = res - 50 * n3;
+                for n4 in 0..=(res / 20) {
+                    let res = res - 20 * n4;
+                    for n5 in 0..=(res / 10) {
+                        let res = res - 10 * n5;
+                        for n6 in 0..=(res / 5) {
+                            let res = res - 5 * n6;
+                            count += res / 2 + 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    println!("{count}");
 }
